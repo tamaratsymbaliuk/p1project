@@ -4,6 +4,7 @@ import java.io.*;
 
 public class Decompressor {
     public static void main(String[] args) throws IOException, ClassNotFoundException, CompressionException {
+        String inputFile = "data/shakespeare.txt";
         String compressedFile = "data/shakespeare.txt.sc";
         String decompressedFile = compressedFile + ".txt";
 
@@ -33,6 +34,11 @@ public class Decompressor {
 
         System.out.println("Compressed file had: " + (codedBytes.length / 2) + " words.");
         System.out.println("Compressed file has: " + inputHolder.getCodeToWord().size() + " unique words.");
+
+        // Compare the original input and the decompressed output
+        BytesComparator comparator = new BytesComparator();
+        boolean areFilesIdentical = comparator.compareFiles(inputFile, decompressedFile);
+        System.out.println("Are original and decompressed files identical? " + areFilesIdentical);
 
     }
 }
