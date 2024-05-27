@@ -8,18 +8,18 @@ public class Compressor {
     public static void main(String[] args) throws CompressionException {
         String inputFile = "data/shakespeare.txt";
         String compressedFile = inputFile + ".sc";
-        String decompressedFile = compressedFile + ".txt";
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
 
-            ByteArrayOutputStream codedText = new ByteArrayOutputStream();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(inputFile)); // Reads the input file.
+
+            ByteArrayOutputStream codedText = new ByteArrayOutputStream(); // Stores the compressed data in memory.
 
             // using Short as it's enough for our program
-            Map<String, Short> wordToCode= new HashMap<>();
-            Map<Short, String> codeToWord= new HashMap<>();
+            Map<String, Short> wordToCode= new HashMap<>(); // Maps words to unique short codes.
+            Map<Short, String> codeToWord= new HashMap<>(); // Maps short codes back to words.
             short newLineCode = 0;
-            wordToCode.put(System.lineSeparator(), newLineCode);
-            codeToWord.put(newLineCode, System.lineSeparator());
+            wordToCode.put(System.lineSeparator(), newLineCode); // Maps newline to 0.
+            codeToWord.put(newLineCode, System.lineSeparator()); // Maps 0 to newline.
 
             short codeCounter = (short) (newLineCode + 1); // or Short.MIN_VALUE
             int totalNumberOfWords = 0;
@@ -30,8 +30,8 @@ public class Compressor {
               totalNumberOfWords += words.length;
               for (String w: words) {
                   // using Short object to use null
-                 Short existingCode = wordToCode.get(w);
-                 if (existingCode == null) {
+                 Short existingCode = wordToCode.get(w);  // Checks if the word already has a code.
+                 if (existingCode == null) { // If not, assigns a new code.
                      wordToCode.put(w, codeCounter);
                      codeToWord.put(codeCounter, w);
                      existingCode = codeCounter;
@@ -49,24 +49,24 @@ public class Compressor {
                   byte high = (byte) (existingCode >>> 8); // this operation does >> 00000000 01011001 => 01011001
                   // everything bigger than 1 bite is cut off
                   byte low = existingCode.byteValue(); // this operation does >> 01111100
-                  codedText.write(high);
-                  codedText.write(low);
+                  codedText.write(high); // Writes the high byte to the output.
+                  codedText.write(low); // Writes the low byte to the output.
 
                   // System.out.print(w);
               }
               // System.out.println();
+              codedText.write(0);// Writes a delimiter (two zero bytes) between lines.
               codedText.write(0);
-              codedText.write(0);
-              totalNumberOfWords++;
+              totalNumberOfWords++; // Increments the word count for the delimiter
 
 
-              line = reader.readLine();
+              line = reader.readLine(); // Reads the next line.
             }
 
-            ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(compressedFile));
-            CompressionInfoHolder holder = new CompressionInfoHolder(codeToWord, codedText.toByteArray());
-            writer.writeObject(holder);
-            writer.flush(); // write to the file and not wait
+            ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(compressedFile)); // Writes the compressed data to a file
+            CompressionInfoHolder holder = new CompressionInfoHolder(codeToWord, codedText.toByteArray()); // Creates a holder for the data
+            writer.writeObject(holder); // Serializes the holder to the file
+            writer.flush(); // write to the file and not wait, Ensures all data is written.
             writer.close();
             System.out.println("Number of unique words " + codeCounter);
             System.out.println("Number of total words " + totalNumberOfWords);
