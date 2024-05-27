@@ -20,7 +20,8 @@ public class Decompressor {
         byte[] codedBytes = inputHolder.getCodedText();
         for (int i = 0; i < codedBytes.length; i += 2) { // every iteration we read 2 bytes at a time
             short high = codedBytes[i];
-            short low = codedBytes[i + 1];
+            // short low = codedBytes[i + 1]; this gives a short with -128 instead of 128
+            short low = (short)(codedBytes[i + 1]& 0xFF);
             short code = (short) ((high << 8) + low);
 
             String word = inputHolder.getCodeToWord().get(code);
